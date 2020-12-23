@@ -1,51 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1" />
-		<link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
-	</head>
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>Online Food Ordering System</title>
+ 	
+
+<?php
+	session_start();
+
+// print_r($_SESSION);
+
+  // if(!isset($_SESSION['login_id']))
+  //   header('location:login.php');
+ include('./header.php'); 
+ // include('./auth.php'); 
+ ?>
+
+</head>
+<style>
+	body{
+        background: #80808045;
+  }
+</style>
+
 <body>
-	<nav class="navbar navbar-default">
-		<div class="container-fluid">
-			<a class="navbar-brand" href="https://sourcecodester.com">Sourcecodester</a>
-		</div>
-	</nav>
-	<div class="col-md-3"></div>	
-	<div class="col-md-6 well">
-		<h3 class="text-primary">PHP - Simple Download File Using PDO</h3>
-		<hr style="border-top:1px dotted #ccc;"/>
-		<center>
-			<form method="POST" action="upload.php" enctype="multipart/form-data">
-				<div class="form-inline">
-					<input type="file" class="form-control" name="file" required="required"/>
-					<button class="btn btn-primary" name="upload"><span class="glyphicon glyphicon-upload"></span> Upload</button>
-				</div>
-			</form>
-		</center>
-		<br />
-		<table class="table table-bordered">
-			<thead class="alert-info">
-				<tr>
-					<th>File</th>
-					<th>Action</th>
-				</tr>
-			</thead>
-			<tbody>
-				<?php
-					require 'conn.php';
-					$query = $conn->prepare("SELECT * FROM `file`");
-					$query->execute();
-					while($fetch = $query->fetch()){
-				?>
-				<tr>
-					<td><?php echo $fetch['file']?></td>
-					<td><a href="download.php?file_id=<?php echo $fetch['file_id']?>" class="btn btn-primary">Download</a></td>
-				</tr>
-				<?php
-					}
-				?>
-			</tbody>
-		</table>
-	</div>
-</body>	
+	<?php include 'topbar.php' ?>
+	<?php include 'navbar.php' ?>
+  <div class="toast" id="alert_toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-body text-white">
+    </div>
+  </div>
+  <main id="view-panel" >
+      <?php $page = isset($_GET['page']) ? $_GET['page'] :'home'; ?>
+  	<?php include $page.'.php' ?>
+  	
+
+  </main>
+
+  <div id="preloader"></div>
+  <a href="#" class="back-to-top"><i class="icofont-simple-up"></i></a>
+
+<div class="modal fade" id="confirm_modal" role='dialog'>
+    <div class="modal-dialog modal-md" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title">Confirmation</h5>
+      </div>
+      <div class="modal-body">
+        <div id="delete_content"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id='confirm' onclick="">Continue</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="uni_modal" role='dialog'>
+    <div class="modal-dialog modal-md" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title"></h5>
+      </div>
+      <div class="modal-body">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id='submit' onclick="$('#uni_modal form').submit()">Save</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+      </div>
+    </div>
+  </div>
+</body>
+<script>
+	 window.start_load = function(){
+    $('body').prepend('<di id="preloader2"></di>')
+  }
+  window.end_load = function(){
+    $('#preloader2').fadeOut('fast', function() {
+        $(this).remove();
+      })
+  }
+
+  window.uni_modal = function($title = '' , $url=''){
+    start_load()
+    $.ajax({
+        url:$url,
+        error:err=>{
+            console.log()
+            alert("An error occured")
+        },
+        success:function(resp){
+            if(resp){
+                $('#uni_modal .modal-title').html($title)
+                $('#uni_modal .modal-body').html(resp)
+                $('#uni_modal').modal('show')
+                end_load()
+            }
+        }
+    })
+}
+window._conf = function($msg='',$func='',$params = []){
+     $('#confirm_modal #confirm').attr('onclick',$func+"("+$params.join(',')+")")
+     $('#confirm_modal .modal-body').html($msg)
+     $('#confirm_modal').modal('show')
+  }
+   window.alert_toast= function($msg = 'TEST',$bg = 'success'){
+      $('#alert_toast').removeClass('bg-success')
+      $('#alert_toast').removeClass('bg-danger')
+      $('#alert_toast').removeClass('bg-info')
+      $('#alert_toast').removeClass('bg-warning')
+
+    if($bg == 'success')
+      $('#alert_toast').addClass('bg-success')
+    if($bg == 'danger')
+      $('#alert_toast').addClass('bg-danger')
+    if($bg == 'info')
+      $('#alert_toast').addClass('bg-info')
+    if($bg == 'warning')
+      $('#alert_toast').addClass('bg-warning')
+    $('#alert_toast .toast-body').html($msg)
+    $('#alert_toast').toast({delay:3000}).toast('show');
+  }
+  $(document).ready(function(){
+    $('#preloader').fadeOut('fast', function() {
+        $(this).remove();
+      })
+  })
+</script>	
 </html>
